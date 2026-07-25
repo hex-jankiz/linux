@@ -130,6 +130,12 @@ code, pre, kbd{font-family:var(--mono);}
 .about-book .settings-label{margin-top:18px;}
 .about-book .settings-label:first-child{margin-top:0;}
 
+/* ---------- Author photo ---------- */
+.author-photo{
+  display:block; width:120px; height:120px; margin:0 auto 14px; border-radius:50%;
+  object-fit:cover; border:2px solid var(--amber); box-shadow:0 6px 18px -6px rgba(0,0,0,.5);
+}
+
 /* ---------- Layout ---------- */
 #app{min-height:100vh;}
 #sidebar{
@@ -377,6 +383,7 @@ footer.book-footer{
     <div class="drawer-tabs">
       <button class="drawer-tab active" data-tab="toc">📑 الفهرس</button>
       <button class="drawer-tab" data-tab="settings">⚙ الإعدادات</button>
+      <button class="drawer-tab" data-tab="cover">🖼 الغلاف</button>
     </div>
 
     <div class="drawer-pane active" id="pane-toc">
@@ -405,6 +412,14 @@ footer.book-footer{
           <li>تُحفظ نقطة توقفك تلقائيًا وتظهر علامة ✓ أمام الفصول المكتملة.</li>
           <li>استخدم أزرار «السابق / التالي» أسفل كل فصل للتنقل بالترتيب.</li>
         </ul>
+      </div>
+    </div>
+
+    <div class="drawer-pane" id="pane-cover">
+      <div class="settings-group about-book">
+        <div class="settings-label">العودة إلى الغلاف</div>
+        <p>يمكنك في أي وقت الرجوع لرؤية غلاف الكتاب نفسه بالضغط على الزر أدناه.</p>
+        <button class="tool-btn" id="show-cover-btn">🖼 عرض غلاف الكتاب</button>
       </div>
     </div>
   </aside>
@@ -445,6 +460,7 @@ footer.book-footer{
       </div>
       <div class="page-block">
         <h2>مقدمة المؤلف</h2>
+        <img src="author-photo.png" alt="صورة المؤلف جنكيز" class="author-photo">
         <p>هذا الكتاب رحلة متكاملة بناها جنكيز ليأخذك خطوة بخطوة من أول مرة تفتح فيها الطرفية إلى إدارة أنظمة Linux وUnix باحترافية: من فهم فلسفة يونكس، مرورًا بإتقان Bash وأدوات معالجة النصوص، وصولًا إلى الشبكات، الأمن، الحاويات، وأساسيات Kubernetes.</p>
         <p>كل فصل مصمم بنفس الهيكل: مقدمة، أهداف واضحة، شرح نظري مركّز، أمثلة عملية حقيقية، أخطاء شائعة يقع فيها المبتدئون، نصائح احترافية، تمارين تفاعلية، وملخص سريع يمكن الرجوع إليه لاحقًا كمرجع.</p>
         <p>لا حاجة لقراءة الكتاب بالترتيب إن كنت تملك خلفية سابقة — استخدم البحث الجانبي أو الفهرس التفاعلي للقفز مباشرة إلى الموضوع الذي تحتاجه.</p>
@@ -1379,17 +1395,18 @@ document.querySelectorAll('.drawer-tab').forEach(btn=>{
   });
 });
 
-/* ---------------- Book cover splash ---------------- */
+/* ---------------- Book cover splash (always shown on every visit) ---------------- */
 const splashEl = document.getElementById('book-splash');
 function closeSplash(){
   splashEl.classList.add('hidden');
-  try{ sessionStorage.setItem('lum_splash_seen','1'); }catch(e){}
 }
 splashEl.addEventListener('click', closeSplash);
 document.getElementById('open-book-btn').addEventListener('click', (e)=>{ e.stopPropagation(); closeSplash(); });
-try{
-  if(sessionStorage.getItem('lum_splash_seen')==='1'){ splashEl.classList.add('hidden'); }
-}catch(e){}
+
+document.getElementById('show-cover-btn').addEventListener('click', ()=>{
+  closeDrawer();
+  splashEl.classList.remove('hidden');
+});
 
 /* ---------------- Reading progress bar (scroll-based supplement) ---------------- */
 window.addEventListener('scroll', ()=>{
