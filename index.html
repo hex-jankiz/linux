@@ -1400,8 +1400,20 @@ const splashEl = document.getElementById('book-splash');
 function closeSplash(){
   splashEl.classList.add('hidden');
 }
-splashEl.addEventListener('click', closeSplash);
-document.getElementById('open-book-btn').addEventListener('click', (e)=>{ e.stopPropagation(); closeSplash(); });
+/* Opening the book from the splash resumes at the last read chapter if one
+   exists, otherwise it reveals the cover/front-matter page underneath. This
+   only runs on user action (click) — never automatically on page load — so
+   the splash is guaranteed to be the first thing anyone sees whenever they
+   open the link, exactly as if the book were closed again. */
+function openBookFromSplash(){
+  if(progressState.lastChapter!==undefined && progressState.lastChapter>=0){
+    goToChapter(progressState.lastChapter); // this also hides the splash
+  } else {
+    closeSplash();
+  }
+}
+splashEl.addEventListener('click', openBookFromSplash);
+document.getElementById('open-book-btn').addEventListener('click', (e)=>{ e.stopPropagation(); openBookFromSplash(); });
 
 document.getElementById('show-cover-btn').addEventListener('click', ()=>{
   closeDrawer();
@@ -1429,11 +1441,13 @@ progressState.done.forEach(i=>{
   const el = document.querySelector(`.toc-item[data-idx="${i}"]`);
   if(el) el.classList.add('done');
 });
-if(progressState.lastChapter!==undefined && progressState.lastChapter>=0){
-  goToChapter(progressState.lastChapter);
-}else{
-  showCover();
-}
+/* Always prepare the cover/front-matter page underneath the splash — never
+   jump straight into a chapter on load. The splash (#book-splash) is shown
+   by default (no 'hidden' class), so every visit — first time or a
+   returning reader — lands on the cover first, exactly like opening a
+   closed book. Tapping the cover (openBookFromSplash) is what actually
+   resumes at the last-read chapter, if any. */
+showCover();
 </script>
 </body>
 </html>
